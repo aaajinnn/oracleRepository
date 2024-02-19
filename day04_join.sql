@@ -1,5 +1,6 @@
 -- day04_join.sql
 
+
 --  DEPT¿Í EMP¸¦ JOIN
 -- [1] EQUI JOIN(INNER JOIN)
 
