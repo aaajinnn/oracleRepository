@@ -139,3 +139,53 @@ WHERE (EP_CODE_FK, OUTPUT_PRICE) IN (
         FROM PRODUCTS  
         GROUP BY EP_CODE_FK);                         
 ROLLBACK;
+
+-- # FROM 절에서 서브쿼리 (INLINE VIEW)
+--[실습]
+--	EMP와 DEPT 테이블에서 업무가 MANAGER인 사원의 이름, 업무,부서명,
+--	근무지를 출력하세요.
+    -- JOIN문을 사용할 경우
+    SELECT ENAME, JOB, DNAME, LOC
+    FROM EMP E JOIN DEPT D
+    ON E.DEPTNO = d.deptno
+    WHERE JOB='MANAGER';
+    
+    -- 서브쿼리를 이용할 경우
+    SELECT ENAME, JOB, DNAME, LOC 
+    FROM
+    (SELECT * FROM EMP WHERE JOB ='MANAGER') A JOIN DEPT D
+    ON A.DEPTNO = D.DEPTNO;
+
+-- 기타 함수
+-- RANK() OVER(분석절)
+-- : 분석절을 기준으로 랭킹을 매기는 함수
+SELECT RANK() OVER(ORDER BY SAL DESC) RNK, EMP.*
+FROM EMP;
+
+-- 급여 많은 사원  TOP5를 뽑아 출력
+SELECT * FROM (
+                SELECT RANK() OVER(ORDER BY SAL DESC) RNK, EMP.*
+                FROM EMP
+                ) A
+ WHERE A.RNK<=5;
+
+-- ROWNUM : 행번호 ==> 행번호를 먼저 매기고 그런 뒤 ORDER BY 함
+SELECT ROWNUM RN,PRODUCTS.* FROM PRODUCTS ORDER BY PNUM DESC;
+
+-- 페이지 넘기기 활용
+-- ROWNUM을 구하기 위해선 ORDER BY를 먼저 해주어야만 한다.
+-- ==> 정렬을 먼저 한 뒤, 행번호를 매기려면 아래와 같이 서브쿼리 사용
+SELECT * FROM (
+                SELECT ROWNUM RN, A.* FROM
+                (SELECT * FROM PRODUCTS ORDER BY PNUM DESC) A
+                )
+WHERE RN BETWEEN 1 AND 5; 
+    -- FRMO절에서 사용한 변수는 어디서든 쓸수 있지만 SELECT절에서 사용한 변수는 사용할 수 없다.
+    
+-- ROW NUMBER() OVER(분석절) : 분석절을 기준으로 행번호를 매겨준다.
+SELECT * FROM (
+                SELECT ROW_NUMBER() OVER(ORDER BY PNUM DESC) RN, PRODUCTS.*
+                FROM PRODUCTS) A
+WHERE RN BETWEEN 1 AND 5;
+
+
